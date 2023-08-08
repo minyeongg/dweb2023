@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="/resources/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./resources/css/bootstrap.min.css" />
     <script
       src="https://code.jquery.com/jquery-3.7.0.js"
       integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM="
@@ -13,14 +13,13 @@
   </head>
   <body>
     <nav class="navbar navbar-dark bg-dark">
-      <a class="navbar-brand">MovieComment</a>
-      <div class="form-inline" name="frm">
+      <a class="navbar-brand">BookComment</a>
+      <div class="form-inline">
         <input
           class="form-control mr-sm-2"
           type="search"
-          name="movieSearch"
-          id="movieName"
-          placeholder="제목 입력 ex) 암살"
+          id="bookName"
+          placeholder="제목 입력 ex) 토지"
           aria-label="Search"
         />
         <button class="btn btn-outline-success my-2 my-sm-0" id="search-btn">
@@ -29,52 +28,108 @@
       </div>
     </nav>
     <script>
-      window.onload = function () {
-        $(document).ready(function () {
-          $("#search-btn").click(function () {
-            console.log("on clicked!");
+      /*
+               window.onload = function () {
+                 $(document).ready(function () {
+                   $("#search-btn").click(function () {
+                     console.log("on clicked!");
+                     $.ajax({
+                       method: "GET",
+                       url:
+                         "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key=91fb5e4126753eefb783bf60eb1d8a40&movieNm=" +
+                         $("#movieName").val(),
+                     }).done(function (msg) {
+                       console.log(msg);
+                       document.getElementById("result").innerHTML = "";
+                       let resultt = "";
+                       let moveList = msg.movieListResult.movieList;
+                       for (short_url of moveList) {
+                         resultt += "<b>영화 제목: " + short_url.movieNm + "</b>";
+                         resultt += "<p>영화명 영문: " + short_url.movieNmEn + "</p>";
+                         resultt += "<p>제작 국가: " + short_url.nationNm + "</p>";
+                         resultt += "<p>제작 연도: " + short_url.prdtYear + "</p>";
+                         resultt += "<p>개봉일자: " + short_url.openDt + "</p>";
+                         resultt += "<p>러닝타임: " + short_url.showTm + "</p>";
+                         resultt += "<p>장르: " + short_url.genreNm + "</p>";
+                         resultt += "<p>감독: " + short_url.directors + "</p>";
+                         // resultt +=
+                         //   "<p>출연: " + short_url.actors[0]["peopleNm"] + "</p>";
+                         // let acts = short_url.actors;
+                         // for (let i = 0; i < acts.length; i++) {
+                         //   resultt += "<i>" + acts[i]["peopleNm"] + "</i>";
+                         // }
+                       }
+                       $("#result").append(resultt);
+                     });
+                   });
+                 });
+               };
+         */
+      $(document).ready(function () {
+        $("#search-btn").click(function () {
+          console.log("on clicked!");
+          let SRCH_VAL = $("#bookName").val();
+          if (!SRCH_VAL) {
+            alert("먼저 검색어를 입력해주십시오");
+            return false;
+          }
+          if (SRCH_VAL) {
             $.ajax({
               method: "GET",
-              url:
-                "https://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key={}&movieNm=" +
-                $("#movieName").val(),
+              url: "https://dapi.kakao.com/v3/search/book?target=title",
+              data: { query: SRCH_VAL },
+              headers: {
+                Authorization: "KakaoAK a8f0c8806a67bebfd80ca657a5429943",
+              },
             }).done(function (msg) {
               console.log(msg);
-              document.getElementById("result").innerHTML = "";
-              let resultt = "";
-              let moveList = msg.movieListResult.movieList;
-              for (short_url of moveList) {
-                resultt += "<b>영화 제목: " + short_url.movieNm + "</b>";
-                resultt += "<p>영화명 영문: " + short_url.movieNmEn + "</p>";
-                resultt += "<p>제작 국가: " + short_url.nationNm + "</p>";
-                resultt += "<p>제작 연도: " + short_url.prdtYear + "</p>";
-                resultt += "<p>개봉일자: " + short_url.openDt + "</p>";
-                resultt += "<p>러닝타임: " + short_url.showTm + "</p>";
-                resultt += "<p>장르: " + short_url.genreNm + "</p>";
-                resultt += "<p>감독: " + short_url.directors + "</p>";
-                // resultt +=
-                //   "<p>출연: " + short_url.actors[0]["peopleNm"] + "</p>";
-                // let acts = short_url.actors;
-                // for (let i = 0; i < acts.length; i++) {
-                //   resultt += "<i>" + acts[i]["peopleNm"] + "</i>";
-                // }
+              document.getElementById("book_result").innerHTML = "";
+              let book_html = "";
+              let bookList = msg.documents;
+              for (short_url of bookList) {
+                book_html += "<b>책 제목: " + short_url.title + "</b>";
+                book_html += "<p>저자: " + short_url.authors + "</p>";
+                book_html += "<p>출판사: " + short_url.publisher + "</p>";
+                book_html += "<p>가격: " + short_url.sale_price + "</p>";
               }
-              $("#result").append(resultt);
+              $("#book_result").append(book_html);
             });
-          });
+          }
         });
-      };
+      });
+      // });
     </script>
     <div class="jumbotron">
       <h1 class="display-4">반가워요!</h1>
       <p class="lead">
-        MovieComment는 영화제목을 입력하여 검색하면 해당 일자에 상영된 영화
-        목록을 보여주고, 영화를 선택하면 리뷰를 남길 수 있는 웹사이트입니다.
+        BookComment는 책 제목을 입력하여 검색하면 관련 책 목록을 보여주고, 책을
+        선택하면 리뷰를 남길 수 있는 웹사이트입니다.
       </p>
       <hr class="my-4" />
-      <p>아래 버튼을 누르면 내가 작성한 영화 리뷰를 볼 수 있습니다.</p>
+      <p>아래 버튼을 누르면 내가 작성한 책 리뷰를 볼 수 있습니다.</p>
       <a class="btn btn-primary btn-lg" href="#" role="button">내 리뷰 보기</a>
     </div>
-    <div id="result"></div>
+    <div
+      style="
+        margin-left: 50px;
+        margin-top: 15px;
+        color: blue;
+        font-weight: bold;
+      "
+    >
+      도서
+    </div>
+    <div
+      id="book_result"
+      style="
+        width: 1000px;
+        min-height: 200px;
+        margin-top: 10px;
+        margin-left: 50px;
+        padding: 6px;
+        padding-right: 75px;
+        border: 1px solid #bbbbbb;
+      "
+    ></div>
   </body>
 </html>
