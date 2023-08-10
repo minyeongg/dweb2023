@@ -5,21 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <link rel="stylesheet" href="./resources/css/bootstrap.min.css" />
+    <script
+      src="https://code.jquery.com/jquery-3.7.0.js"
+      integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM="
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      #book_result > p {
+      }
+    </style>
   </head>
   <body>
     <nav class="navbar navbar-dark bg-dark">
-      <a class="navbar-brand">MovieComment</a>
-      <form class="form-inline">
+      <a class="navbar-brand" href="index.html">BookComment</a>
+      <div class="form-inline">
         <input
           class="form-control mr-sm-2"
           type="search"
-          placeholder="날짜 입력 ex) 20120101"
+          id="bookName"
+          placeholder="제목 입력 ex) 토지"
           aria-label="Search"
         />
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+        <button class="btn btn-outline-success my-2 my-sm-0" id="search-btn">
           Search
         </button>
-      </form>
+      </div>
     </nav>
+    <div
+      style="
+        margin-left: 50px;
+        margin-top: 15px;
+        color: blue;
+        font-weight: bold;
+      "
+    >
+      도서
+    </div>
+    <div
+      id="book_result"
+      style="
+        width: 1000px;
+        min-height: 200px;
+        margin-top: 10px;
+        margin-left: 50px;
+        padding: 6px;
+        padding-right: 75px;
+        border: 1px solid #bbbbbb;
+      "
+    ></div>
+    <script>
+      $(document).ready(function () {
+        $("#search-btn").click(function () {
+          let SRCH_VAL = $("#bookName").val();
+          if (!SRCH_VAL) {
+            alert("먼저 검색어를 입력해주십시오");
+            return false;
+          }
+          if (SRCH_VAL) {
+            $.ajax({
+              method: "GET",
+              url: "https://dapi.kakao.com/v3/search/book?target=title",
+              data: { query: SRCH_VAL },
+              headers: {
+                Authorization: "KakaoAK a8f0c8806a67bebfd80ca657a5429943",
+              },
+            }).done(function (msg) {
+              document.getElementById("book_result").innerHTML = "";
+              let book_html = "";
+              let bookList = msg.documents;
+              for (short_url of bookList) {
+                book_html += "<div>";
+                book_html += "<b>" + short_url.title + "</b>";
+                book_html += "<p>저자: " + short_url.authors + "</p>";
+                book_html += "<p>출판사: " + short_url.publisher + "</p>";
+                book_html += "<p>가격: " + short_url.sale_price + "원 </p>";
+                book_html += "<hr>";
+                book_html += "</div>";
+              }
+              $("#book_result").append(book_html);
+            });
+          }
+        });
+      });
+    </script>
   </body>
 </html>
